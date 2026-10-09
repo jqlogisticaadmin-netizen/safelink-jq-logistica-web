@@ -46,6 +46,7 @@
     }
     authScreen.hidden = true;
     appShell.hidden = false;
+    window.dispatchEvent(new CustomEvent("safelink:session-ready"));
     byId("sessionUser").textContent = profile.full_name || session.user.email || "Usuário";
     const tag = document.querySelector(".environment-tag");
     if (tag) tag.textContent = roles.some((r) => r.role_code === "MASTER" && r.organization_id === null)
