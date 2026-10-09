@@ -1,0 +1,88 @@
+name: SafeLink GitHub Pages app
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "app/**"
+      - ".github/workflows/deploy-app-pages.yml"
+  push:
+    branches: [main]
+    paths:
+      - "app/**"
+      - ".github/workflows/deploy-app-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: safelink-pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate static app and scan for secrets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify required app files and JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f app/index.html
+          test -f app/login.html
+          test -f app/assets/css/styles.css
+          test -f app/assets/css/login.css
+          for file in app/assets/js/*.js; do
+            node --input-type=module --check < "$file"
+          done
+          grep -q 'supabase-client.js' app/assets/js/app.js
+          grep -q 'auth-access.js' app/assets/js/app.js
+          grep -q 'login.js' app/login.html
+      - name: Reject privileged credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -R -nE 'SUPABASE_SERVICE_ROLE_KEY[[:space:]]*=[[:space:]]*[^[:space:]]+|-----BEGIN ([A-Z ]+ )?PRIVATE KEY-----|eyJ[A-Za-z0-9_-]{30,}\.[A-Za-z0-9_-]{30,}\.[A-Za-z0-9_-]{20,}' app; then
+            echo "Potential privileged credential detected in public app artifact."
+            exit 1
+          fi
+      - name: Build static artifact
+        run: |
+          mkdir -p _site
+          cp -R app/. _site/
+          test -f _site/index.html
+          test -f _site/login.html
+          touch _site/.nojekyll
+      - uses: actions/upload-artifact@v4
+        with:
+          name: safelink-pages-site
+          path: _site/
+          if-no-files-found: error
+          retention-days: 1
+
+  deploy:
+    name: Deploy app to GitHub Pages
+    needs: validate
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: safelink-pages-site
+          path: _site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

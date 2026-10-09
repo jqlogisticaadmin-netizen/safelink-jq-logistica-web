@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071a2e">
+  <meta name="description" content="SafeLink — gestão logística J&Q Logística.">
+  <title>SafeLink | J&Q Logística</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script type="module" src="assets/js/app.js"></script>
+</head>
+<body class="auth-pending">
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#dashboard" aria-label="SafeLink início">
+        <span class="brand-mark">S</span>
+        <span><strong>Safe<span>Link</span></strong><small>J&Q Logística</small></span>
+      </a>
+      <div class="workspace-label">ÁREA DE TRABALHO</div>
+      <nav class="main-nav" aria-label="Navegação principal">
+        <a class="nav-link active" href="#dashboard" data-view="dashboard"><span>▦</span> Dashboard</a>
+        <a class="nav-link" href="#organizacoes" data-view="organizacoes"><span>▦</span> Organizações</a>
+        <a class="nav-link" href="#bases" data-view="bases"><span>⌂</span> Bases</a>
+        <a class="nav-link" href="#usuarios" data-view="usuarios"><span>♙</span> Usuários e acessos</a>
+        <a class="nav-link" href="#clientes" data-view="clientes"><span>▤</span> Clientes</a>
+        <div class="nav-section">OPERAÇÃO LOGÍSTICA</div>
+        <a class="nav-link" href="#importacao" data-view="importacao"><span>⇧</span> Importação</a>
+        <a class="nav-link" href="#pacotes" data-view="pacotes"><span>▣</span> Pacotes</a>
+        <a class="nav-link" href="#motoristas" data-view="motoristas"><span>♧</span> Motoristas</a>
+        <a class="nav-link" href="#expedicoes" data-view="expedicoes"><span>⇢</span> Expedições</a>
+        <a class="nav-link" href="#rotas" data-view="rotas"><span>⌖</span> Rotas e entregas</a>
+        <div class="nav-section">CONTROLE</div>
+        <a class="nav-link" href="#relatorios" data-view="relatorios"><span>▥</span> Indicadores e relatórios</a>
+        <a class="nav-link" href="#auditoria" data-view="auditoria"><span>◷</span> Auditoria e histórico</a>
+        <a class="nav-link" href="#administracao" data-view="administracao"><span>⚙</span> Administração</a>
+      </nav>
+      <div class="sidebar-footer"><span class="status-dot"></span> Ambiente autenticado <small>Cadastros via Supabase/RLS</small></div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <button class="icon-button menu-toggle" id="menuToggle" aria-label="Abrir menu" aria-expanded="false">☰</button>
+        <div class="breadcrumbs"><span>SafeLink</span><span class="crumb-separator">/</span><strong id="breadcrumbCurrent">Dashboard</strong></div>
+        <div class="topbar-right"><span class="environment-tag">SESSÃO AUTENTICADA</span><button class="logout-button" id="logoutButton" type="button">Sair</button><div class="avatar" aria-hidden="true">SL</div></div>
+      </header>
+      <section class="content" id="appContent" tabindex="-1">
+        <div class="page-heading">
+          <div><p class="eyebrow">VISÃO GERAL</p><h1>Dashboard</h1><p class="page-description">Acompanhe a operação logística em um só lugar.</p></div>
+          <span class="date-chip">Dados reais serão conectados após a configuração do backend</span>
+        </div>
+        <div class="notice" role="status"><span class="notice-icon">i</span><div><strong>Ambiente inicial de desenvolvimento</strong><p>Esta interface é a fundação visual do SafeLink. Ainda não está conectada ao Supabase e não apresenta indicadores operacionais reais.</p></div></div>
+        <div class="section-heading"><div><h2>Indicadores operacionais</h2><p>Os cartões serão preenchidos após validar as fontes e fórmulas de cada indicador.</p></div></div>
+        <div class="metrics-grid">
+          <article class="metric-card"><div class="metric-top"><span>Pacotes</span><span class="metric-icon blue">▣</span></div><strong class="metric-value">—</strong><p>Aguardando integração de dados</p></article>
+          <article class="metric-card"><div class="metric-top"><span>SLA</span><span class="metric-icon cyan">◷</span></div><strong class="metric-value">—</strong><p>Fórmula operacional a validar</p></article>
+          <article class="metric-card"><div class="metric-top"><span>Em rota</span><span class="metric-icon violet">⌖</span></div><strong class="metric-value">—</strong><p>Aguardando integração de dados</p></article>
+          <article class="metric-card"><div class="metric-top"><span>Backlog</span><span class="metric-icon amber">▤</span></div><strong class="metric-value">—</strong><p>Faixas e regras a configurar</p></article>
+        </div>
+        <div class="content-grid">
+          <article class="panel"><div class="panel-heading"><div><h2>Atividade operacional</h2><p>Movimentações recentes aparecerão aqui.</p></div><span class="panel-label">SEM DADOS</span></div><div class="empty-state"><div class="empty-icon">▤</div><strong>Nenhuma atividade conectada</strong><p>Após a integração, esta área exibirá eventos operacionais autorizados.</p></div></article>
+          <article class="panel"><div class="panel-heading"><div><h2>Integridade do ambiente</h2><p>Preparação técnica</p></div></div><ul class="check-list"><li><span class="check pending">○</span><span><strong>Banco de dados</strong><small>Projeto Supabase a configurar</small></span></li><li><span class="check pending">○</span><span><strong>Autenticação</strong><small>Fluxo seguro ainda não conectado</small></span></li><li><span class="check pending">○</span><span><strong>Permissões e RLS</strong><small>Políticas a implementar e testar</small></span></li><li><span class="check pending">○</span><span><strong>Importação de planilhas</strong><small>Contrato e validações pendentes</small></span></li></ul></article>
+        </div>
+        <footer class="page-footer"><span>SafeLink · J&Q Logística</span><span>Conectando a operação de ponta a ponta.</span></footer>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

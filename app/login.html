@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071525">
+  <meta name="description" content="Acesso seguro ao SafeLink — J&Q Logística.">
+  <title>Iniciar sessão | SafeLink</title>
+  <link rel="stylesheet" href="assets/css/login.css">
+  <script type="module" src="assets/js/login.js"></script>
+</head>
+<body>
+  <main class="login-shell">
+    <a class="login-brand" href="./login.html" aria-label="SafeLink — início">
+      <span class="login-mark" aria-hidden="true">S</span>
+      <span><strong>Safe<span>Link</span></strong><small>J&Q Logística · Conectando a operação de ponta a ponta.</small></span>
+    </a>
+
+    <section class="login-card" aria-labelledby="loginTitle">
+      <div id="signInPanel">
+        <p class="eyebrow">ACESSO AO AMBIENTE</p>
+        <h1 id="loginTitle">Iniciar sessão</h1>
+        <p class="intro">Entre com as credenciais da sua conta SafeLink.</p>
+        <form id="loginForm" novalidate>
+          <label class="field">
+            <span>E-mail</span>
+            <input id="email" name="email" type="email" autocomplete="username" inputmode="email" required maxlength="254" placeholder="voce@empresa.com">
+          </label>
+          <label class="field">
+            <span>Senha</span>
+            <div class="password-row">
+              <input id="password" name="password" type="password" autocomplete="current-password" required minlength="1" maxlength="256" placeholder="Digite sua senha">
+              <button class="text-button" id="togglePassword" type="button" aria-pressed="false">Mostrar</button>
+            </div>
+          </label>
+          <div class="forgot-row"><button class="text-button" id="forgotPassword" type="button">Esqueci minha senha</button></div>
+          <button class="primary-button" id="signInButton" type="submit">Entrar</button>
+        </form>
+      </div>
+
+      <div id="recoveryPanel" hidden>
+        <p class="eyebrow">RECUPERAÇÃO DE ACESSO</p>
+        <h1>Definir nova senha</h1>
+        <p class="intro">Escolha uma nova senha para sua conta SafeLink.</p>
+        <form id="recoveryForm" novalidate>
+          <label class="field">
+            <span>Nova senha</span>
+            <input id="newPassword" name="newPassword" type="password" autocomplete="new-password" minlength="10" maxlength="256" required placeholder="Mínimo de 10 caracteres">
+          </label>
+          <label class="field">
+            <span>Confirmar nova senha</span>
+            <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" minlength="10" maxlength="256" required placeholder="Repita a nova senha">
+          </label>
+          <button class="primary-button" id="savePasswordButton" type="submit">Salvar nova senha</button>
+          <button class="secondary-button" id="backToLogin" type="button">Voltar para o login</button>
+        </form>
+      </div>
+
+      <p id="formMessage" class="message" role="status" aria-live="polite" hidden></p>
+    </section>
+    <p class="footer">SafeLink · J&Q Logística · Acesso controlado por autenticação e permissões.</p>
+  </main>
+</body>
+</html>
