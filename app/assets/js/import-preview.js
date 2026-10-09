@@ -1,4 +1,5 @@
 import { classifyD0, normalizeSlaReferenceDates } from "./operational-calculations.js";
+import { attachPersistentImport } from "./persistent-import.js";
 
 const PREVIEW_LIMIT = 50;
 const MAPPABLE_FIELDS = [
@@ -204,6 +205,7 @@ export function renderImportPreview(content) {
         throw new Error("Não foram encontradas colunas ou linhas de dados.");
       }
       result.innerHTML = renderTable(rows) + renderMapping(rows[0].map((header) => String(header ?? "")));
+      attachPersistentImport(result, rows, file).catch(() => { /* Keep local preview available if persistence setup fails. */ });
       const normalizeButton = result.querySelector("#normalizeSlaDates");
       normalizeButton.addEventListener("click", () => {
         const bwSelect = result.querySelector('[data-map-field="sla_reference_date"]');
