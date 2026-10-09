@@ -127,6 +127,16 @@
       return;
     }
 
+    if (view === "importacao") {
+      content.innerHTML = '<div id="importModule"></div>';
+      sidebar.classList.remove("open");
+      menuToggle.setAttribute("aria-expanded", "false");
+      if (window.SAFELINK_RENDER_IMPORTACAO) window.SAFELINK_RENDER_IMPORTACAO();
+      else content.innerHTML = '<div class="notice"><strong>Módulo de importação indisponível</strong><p>Atualize a página para carregar os recursos do módulo.</p></div>';
+      content.focus();
+      return;
+    }
+
     content.innerHTML = `
       <div class="page-heading">
         <div><p class="eyebrow">SAFELINK · MÓDULO</p><h1>${title}</h1>
