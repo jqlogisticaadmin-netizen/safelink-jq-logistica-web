@@ -176,6 +176,8 @@ async function renderUsers(content, userId) {
       <section class="panel"><div class="panel-heading"><div><h2>Perfil e papel</h2><p>Selecione uma conta Auth existente.</p></div></div>
         <form id="userForm" class="admin-form">
           <label>Usuário *<select name="user_id" required><option value="">Selecione...</option>${options(profiles, "", "user_id", "full_name")}</select></label>
+          <label>Nome completo<input name="full_name" maxlength="160" autocomplete="name" placeholder="Nome para exibição"></label>
+          <label>Status da conta<select name="is_active"><option value="true">Ativo</option><option value="false">Inativo</option></select></label>
           <label>Papel a adicionar<select name="role_code"><option value="">Não adicionar papel</option>${roleOptions.map((role) => `<option value="${role.value}">${role.label}</option>`).join("")}</select></label>
           <label>Organização do papel<select name="organization_id"><option value="">Selecione...</option>${options(orgs, "", "id", "name")}</select></label>
           <label>Base opcional<select name="base_id"><option value="">Sem alteração de base</option>${options(bases, "", "id", "name")}</select></label>
@@ -190,12 +192,19 @@ async function renderUsers(content, userId) {
       </section>
     </div>`;
   const form = document.getElementById("userForm");
+  form.elements.user_id.addEventListener("change", () => {
+    const selected = profiles.find((profile) => profile.user_id === form.elements.user_id.value);
+    form.elements.full_name.value = selected?.full_name || "";
+    form.elements.is_active.value = String(selected?.is_active ?? true);
+  });
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(form).entries());
     if (!data.user_id) return setNotice("Selecione um usuário existente.", "error");
-    if (!data.role_code && !data.base_id) return setNotice("Selecione um papel ou uma base para alterar os acessos.", "error");
+    if (data.user_id === userId && data.is_active === "false") return setNotice("Você não pode desativar a própria conta MASTER durante a sessão.", "error");
     if (data.base_id && !data.role_code) return setNotice("Para vincular uma base, selecione também um papel.", "error");
+    const profileResult = await supabase.from("user_profiles").update({ full_name: data.full_name.trim() || null, is_active: data.is_active === "true" }).eq("user_id", data.user_id);
+    if (profileResult.error) return setNotice(`Não foi possível atualizar o perfil. ${profileResult.error.message}`, "error");
     if (data.role_code) {
       if (!data.organization_id) return setNotice("Selecione uma organização para o papel.", "error");
       const duplicate = roles.some((role) => role.user_id === data.user_id && role.role_code === data.role_code && role.organization_id === data.organization_id);
