@@ -27,9 +27,11 @@ jobs:
           test -s assets/js/config.js
           test -s assets/js/auth.js
           test -s assets/js/app.js
+          test -s assets/js/importacao.js
           node --check assets/js/config.js
           node --check assets/js/auth.js
           node --check assets/js/app.js
+          node --check assets/js/importacao.js
           if grep -R -n -E 'service_role|SUPABASE_SERVICE_ROLE_KEY|-----BEGIN (RSA|OPENSSH|EC) PRIVATE KEY-----' index.html assets; then
             echo "Possible secret detected in public frontend files."
             exit 1
