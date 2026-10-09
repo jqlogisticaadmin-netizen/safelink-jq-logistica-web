@@ -5,7 +5,7 @@
   const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
   function renderShell() {
     const root = byId("importModule"); if (!root) return;
-    root.innerHTML = \`
+    root.innerHTML = `
       <div class="page-heading"><div><p class="eyebrow">SAFELINK · OPERAÇÃO</p><h1>Importação</h1><p class="page-description">Envie uma planilha, confira as colunas e valide os registros antes de qualquer gravação operacional.</p></div><span class="date-chip">Pré-validação</span></div>
       <div class="notice" role="status"><span class="notice-icon">i</span><div><strong>Importação em duas etapas</strong><p>Esta etapa analisa o arquivo no navegador e pode registrar um rascunho de validação. Ainda não grava pacotes nem altera indicadores operacionais.</p></div></div>
       <section class="import-card"><div class="section-heading"><div><h2>1. Arquivo e escopo</h2><p>Arquivos .xlsx, .xls e .csv de até 20 MB; até 10.000 linhas na primeira aba.</p></div></div>
@@ -14,7 +14,7 @@
       <div class="metrics-grid import-metrics"><article class="metric-card"><span>Linhas lidas</span><strong class="metric-value" id="importTotalRows">0</strong></article><article class="metric-card"><span>Válidas</span><strong class="metric-value" id="importValidRows">0</strong></article><article class="metric-card"><span>Com erros</span><strong class="metric-value" id="importInvalidRows">0</strong></article><article class="metric-card"><span>Etiquetas duplicadas</span><strong class="metric-value" id="importDuplicateRows">0</strong></article></div>
       <div class="import-validation-message" id="importValidationMessage" role="status"></div><div class="table-scroll"><table class="import-table"><thead id="importPreviewHead"></thead><tbody id="importPreviewBody"></tbody></table></div>
       <div class="import-actions"><button class="auth-submit import-action" id="saveImportDraft" type="button" disabled>Registrar rascunho de validação</button><button class="signout-button" id="resetImport" type="button">Limpar análise</button></div><p class="muted-note">O rascunho registra apenas metadados, hash e resumo. O conteúdo da planilha não é enviado nem gravado como pacotes nesta etapa.</p></section>
-      <section class="import-card"><div class="section-heading"><div><h2>Histórico recente</h2><p>Rascunhos visíveis ao seu perfil e às permissões RLS.</p></div><button class="signout-button" id="refreshImportHistory" type="button">Atualizar</button></div><div id="importHistory" class="import-history"><p class="muted-note">Consultando histórico…</p></div></section>\`;
+      <section class="import-card"><div class="section-heading"><div><h2>Histórico recente</h2><p>Rascunhos visíveis ao seu perfil e às permissões RLS.</p></div><button class="signout-button" id="refreshImportHistory" type="button">Atualizar</button></div><div id="importHistory" class="import-history"><p class="muted-note">Consultando histórico…</p></div></section>`;
     byId("importFile").addEventListener("change", onFileSelected);
     byId("importBase").addEventListener("change", updateSaveState);
     byId("saveImportDraft").addEventListener("click", saveDraft);
