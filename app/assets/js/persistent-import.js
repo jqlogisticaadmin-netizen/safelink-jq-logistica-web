@@ -70,6 +70,7 @@ export async function attachPersistentImport(result, rows, file) {
 
     const headers = rows[0].map((value, index) => String(value || ("Coluna " + (index + 1))));
     const normalizedHeaders = headers.map((header) => header.trim().toLocaleLowerCase("pt-BR"));
+    const dataRows = rows.slice(1);
     if (normalizedHeaders.some((header, index) => header && normalizedHeaders.indexOf(header) !== index)) {
       return showStatus("Importação bloqueada: existem cabeçalhos repetidos. Corrija o arquivo ou renomeie as colunas antes de importar.", "error");
     }
@@ -90,7 +91,6 @@ export async function attachPersistentImport(result, rows, file) {
     const byTarget = Object.fromEntries(mappings.map((item) => [item.target_field, item]));
     if (!byTarget.package_label) return showStatus("Mapeie a coluna Número da etiqueta antes de importar.", "error");
 
-    const dataRows = rows.slice(1);
     let slaNormalization = null;
     if (byTarget.sla_reference_date) {
       const slaColumn = byTarget.sla_reference_date.source_column_index - 1;
