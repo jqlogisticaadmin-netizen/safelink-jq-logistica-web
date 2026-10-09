@@ -140,26 +140,46 @@ export async function attachPersistentImport(result, rows, file) {
     showStatus("Salvando o perfil e validando " + canonicalRows.length + " linha(s)…");
     errorsBox.innerHTML = "";
     try {
+      if (!globalThis.crypto?.subtle) throw new Error("Este navegador não oferece SHA-256 seguro; atualize o navegador para importar.");
+      const digest = await globalThis.crypto.subtle.digest("SHA-256", await file.arrayBuffer());
+      const hash = Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, "0")).join("");
+
       const { data: latestProfile, error: lookupError } = await supabase
-        .from("import_profiles").select("version")
+        .from("import_profiles").select("id,version")
         .eq("base_id", baseId).eq("name", profileName)
         .order("version", { ascending: false }).limit(1).maybeSingle();
       if (lookupError) throw lookupError;
-      const nextVersion = Number(latestProfile?.version || 0) + 1;
-      const { data: profileId, error: profileError } = await supabase.rpc("save_import_profile", {
-        p_base_id: baseId,
-        p_name: profileName,
-        p_version: nextVersion,
-        p_description: "Perfil salvo pela tela de importação SafeLink",
-        p_mappings: mappings
-      });
-      if (profileError) throw profileError;
 
-      let hash = null;
-      if (globalThis.crypto?.subtle) {
-        const digest = await globalThis.crypto.subtle.digest("SHA-256", await file.arrayBuffer());
-        hash = Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, "0")).join("");
+      const normalizeMappings = (items) => items.map((item) => ({
+        source_header: item.source_header,
+        source_column_index: Number(item.source_column_index),
+        target_field: item.target_field,
+        is_required: item.is_required === true
+      })).sort((left, right) => left.target_field.localeCompare(right.target_field));
+      let profileId = null;
+      if (latestProfile?.id) {
+        const { data: savedMappings, error: mappingsError } = await supabase
+          .from("import_field_mappings")
+          .select("source_header,source_column_index,target_field,is_required")
+          .eq("import_profile_id", latestProfile.id);
+        if (mappingsError) throw mappingsError;
+        if (JSON.stringify(normalizeMappings(savedMappings || [])) === JSON.stringify(normalizeMappings(mappings))) {
+          profileId = latestProfile.id;
+        }
       }
+      if (!profileId) {
+        const nextVersion = Number(latestProfile?.version || 0) + 1;
+        const { data: createdProfileId, error: profileError } = await supabase.rpc("save_import_profile", {
+          p_base_id: baseId,
+          p_name: profileName,
+          p_version: nextVersion,
+          p_description: "Perfil salvo pela tela de importação SafeLink",
+          p_mappings: mappings
+        });
+        if (profileError) throw profileError;
+        profileId = createdProfileId;
+      }
+
       const { data: batch, error: importError } = await supabase.rpc("import_safelink_packages", {
         p_base_id: baseId,
         p_import_profile_id: profileId,
@@ -168,9 +188,12 @@ export async function attachPersistentImport(result, rows, file) {
         p_rows: canonicalRows
       });
       if (importError) throw importError;
-      showStatus("Lote " + batch.batch_id + " concluído: " + batch.accepted_rows + " linha(s) aceita(s), " +
-        batch.rejected_rows + " rejeitada(s), de " + batch.total_rows +
-        ". As horas foram descartadas nas datas gravadas; duplicados não sobrescreveram registros.", batch.rejected_rows ? "warning" : "success");
+      showStatus(batch.idempotent_replay
+        ? "Reenvio idempotente detectado: o lote existente " + batch.batch_id + " foi reutilizado sem inserir dados duplicados."
+        : "Lote " + batch.batch_id + " concluído: " + batch.accepted_rows + " linha(s) aceita(s), " +
+          batch.rejected_rows + " rejeitada(s), de " + batch.total_rows +
+          ". As horas foram descartadas nas datas gravadas; duplicados não sobrescreveram registros.",
+        batch.idempotent_replay ? "success" : (batch.rejected_rows ? "warning" : "success"));
       if (batch.rejected_rows > 0) {
         const { data: rowErrors, error: rowError } = await supabase.from("import_row_errors")
           .select("row_number,errors").eq("import_batch_id", batch.batch_id).order("row_number");
