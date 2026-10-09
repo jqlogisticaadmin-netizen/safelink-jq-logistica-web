@@ -189,9 +189,35 @@ async function renderUsers(content, userId) {
         <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Usuário</th><th>Status</th><th>Papéis</th></tr></thead><tbody>
         ${profiles.map((profile) => `<tr><td><strong>${escapeHtml(profile.full_name || "Sem nome")}</strong><small><code>${escapeHtml(profile.user_id)}</code></small></td><td>${profile.is_active ? "Ativo" : "Inativo"}</td><td>${escapeHtml(roles.filter((role) => role.user_id === profile.user_id).map((role) => `${role.role_code} · ${orgName(role.organization_id)}`).join(", ") || "Sem papel")}</td></tr>`).join("") || '<tr><td colspan="3">Nenhum perfil visível.</td></tr>'}
         </tbody></table></div>
+      <div class="panel-heading" style="margin-top:18px"><div><h2>Editar papéis existentes</h2><p>Altere papel e organização ou remova um acesso.</p></div></div>
+      <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Usuário</th><th>Papel</th><th>Organização</th><th>Ações</th></tr></thead><tbody>
+      ${roles.map((role) => "<tr><td>" + escapeHtml(profileName(role.user_id)) + "</td><td><select data-role-code=\"" + escapeHtml(role.id) + "\"><option value=\"GESTOR\"" + (role.role_code === "GESTOR" ? " selected" : "") + ">Gestor</option><option value=\"ADMINISTRATIVO\"" + (role.role_code === "ADMINISTRATIVO" ? " selected" : "") + ">Administrativo</option><option value=\"MOTORISTA\"" + (role.role_code === "MOTORISTA" ? " selected" : "") + ">Motorista</option></select></td><td><select data-role-org=\"" + escapeHtml(role.id) + "\"><option value=\"\">Selecione...</option>" + options(orgs, role.organization_id, "id", "name") + "</select></td><td><div class=\"admin-actions\"><button type=\"button\" class=\"admin-secondary\" data-save-role=\"" + escapeHtml(role.id) + "\">Salvar</button><button type=\"button\" class=\"admin-secondary\" data-remove-role=\"" + escapeHtml(role.id) + "\">Remover</button></div></td></tr>").join("") || "<tr><td colspan=\"4\">Nenhum papel editável cadastrado.</td></tr>"}
+      </tbody></table></div>
       </section>
     </div>`;
   const form = document.getElementById("userForm");
+  content.querySelectorAll("[data-save-role]").forEach((button) => button.addEventListener("click", async () => {
+    const roleId = button.dataset.saveRole;
+    const role = roles.find((item) => item.id === roleId);
+    const roleCode = content.querySelector("[data-role-code=\"" + roleId + "\"]")?.value;
+    const organizationId = content.querySelector("[data-role-org=\"" + roleId + "\"]")?.value;
+    if (!role || !roleCode || !organizationId) return setNotice("Selecione um papel e uma organização válidos.", "error");
+    const duplicate = roles.some((item) => item.id !== roleId && item.user_id === role.user_id && item.role_code === roleCode && item.organization_id === organizationId);
+    if (duplicate) return setNotice("Esse usuário já possui esse papel nessa organização.", "error");
+    const result = await supabase.from("user_roles").update({ role_code: roleCode, organization_id: organizationId }).eq("id", roleId);
+    if (result.error) return setNotice("Não foi possível atualizar o papel. " + result.error.message, "error");
+    await renderUsers(content, userId);
+    setNotice("Papel atualizado.", "success");
+  }));
+  content.querySelectorAll("[data-remove-role]").forEach((button) => button.addEventListener("click", async () => {
+    const roleId = button.dataset.removeRole;
+    if (!roles.some((item) => item.id === roleId)) return;
+    if (!window.confirm("Remover este papel? O usuário poderá perder acesso à organização.")) return;
+    const result = await supabase.from("user_roles").delete().eq("id", roleId);
+    if (result.error) return setNotice("Não foi possível remover o papel. " + result.error.message, "error");
+    await renderUsers(content, userId);
+    setNotice("Papel removido.", "success");
+  }));
   form.elements.user_id.addEventListener("change", () => {
     const selected = profiles.find((profile) => profile.user_id === form.elements.user_id.value);
     form.elements.full_name.value = selected?.full_name || "";
