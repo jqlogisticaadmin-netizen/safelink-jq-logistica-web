@@ -2,6 +2,7 @@ import { supabase } from "./supabase-client.js";
 import { checkSafeLinkAccess } from "./auth-access.js";
 import { renderAdminView } from "./admin-data.js";
 import { renderImportPreview } from "./import-preview.js";
+import { renderDashboard } from "./dashboard-data.js";
 
 let safeLinkAccessAllowed = false;
 let authenticatedUserId = null;
@@ -89,8 +90,10 @@ if (safeLinkAccessAllowed) {
     }
 
     if (view === "dashboard") {
-      window.location.hash = "dashboard";
-      window.location.reload();
+      await renderDashboard(content);
+      sidebar.classList.remove("open");
+      menuToggle.setAttribute("aria-expanded", "false");
+      content.focus();
       return;
     }
 
@@ -119,11 +122,6 @@ if (safeLinkAccessAllowed) {
     link.addEventListener("click", (event) => {
       event.preventDefault();
       const view = link.dataset.view;
-      if (view === "dashboard") {
-        window.location.hash = "dashboard";
-        window.location.reload();
-        return;
-      }
       window.location.hash = view;
       renderView(view);
     });
@@ -135,6 +133,12 @@ if (safeLinkAccessAllowed) {
   });
 
   const initialView = window.location.hash.slice(1);
-  if (initialView && titles[initialView] && initialView !== "dashboard") renderView(initialView);
+  if (initialView && titles[initialView]) renderView(initialView);
+  else renderDashboard(content);
+
+  window.addEventListener("hashchange", () => {
+    const nextView = window.location.hash.slice(1) || "dashboard";
+    if (titles[nextView]) renderView(nextView);
+  });
 })();
 }
