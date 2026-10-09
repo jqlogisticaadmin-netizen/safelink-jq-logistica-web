@@ -150,12 +150,12 @@ export function renderImportPreview(content) {
       <div id="importPreviewResult" class="admin-table-wrap"></div>
     </section>
     <section class="panel" style="margin-top:18px">
-      <div class="panel-heading"><div><h2>Regras ainda não aplicadas</h2><p>Não serão inferidas automaticamente.</p></div></div>
+      <div class="panel-heading"><div><h2>Validação antes de gravar</h2><p>Revise o mapeamento e selecione a base correta.</p></div></div>
       <ul class="check-list">
-        <li><span class="check pending">○</span><span><strong>Mapeamento de colunas</strong><small>Definir os campos canônicos por cliente/operação.</small></span></li>
-        <li><span class="check pending">○</span><span><strong>Datas operacionais</strong><small>Campos de data serão normalizados sem horas após identificação do mapeamento.</small></span></li>
-        <li><span class="check pending">○</span><span><strong>Duplicidade e reimportação</strong><small>Não há política de etiqueta ou reimportação aprovada.</small></span></li>
-        <li><span class="check pending">○</span><span><strong>Persistência</strong><small>Backend, RLS, histórico e erros por linha continuam em desenvolvimento.</small></span></li>
+        <li><span class="check pending">1</span><span><strong>Etiqueta</strong><small>Obrigatória e sem duplicidade dentro da base.</small></span></li>
+        <li><span class="check pending">2</span><span><strong>Datas</strong><small>Horas são descartadas; datas inválidas são rejeitadas por linha.</small></span></li>
+        <li><span class="check pending">3</span><span><strong>Persistência</strong><small>A gravação ocorre no Supabase e gera histórico de importação.</small></span></li>
+        <li><span class="check pending">4</span><span><strong>Reenvio</strong><small>O mesmo arquivo, base e perfil não deve criar uma segunda importação.</small></span></li>
       </ul>
     </section>`;
   const form = document.getElementById("importPreviewForm");
@@ -205,7 +205,10 @@ export function renderImportPreview(content) {
         throw new Error("Não foram encontradas colunas ou linhas de dados.");
       }
       result.innerHTML = renderTable(rows) + renderMapping(rows[0].map((header) => String(header ?? "")));
-      attachPersistentImport(result, rows, file).catch(() => { /* Keep local preview available if persistence setup fails. */ });
+      attachPersistentImport(result, rows, file).catch((error) => {
+        showStatus("A prévia foi gerada, mas não foi possível habilitar a importação persistente: " +
+          (error?.message || "falha ao consultar a base ou as permissões."), true);
+      });
       const normalizeButton = result.querySelector("#normalizeSlaDates");
       normalizeButton.addEventListener("click", () => {
         const bwSelect = result.querySelector('[data-map-field="sla_reference_date"]');
