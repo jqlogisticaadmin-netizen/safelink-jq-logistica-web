@@ -3,6 +3,7 @@ import { checkSafeLinkAccess } from "./auth-access.js";
 import { renderAdminView } from "./admin-data.js";
 import { renderImportPreview } from "./import-preview.js";
 import { renderDashboard } from "./dashboard-data.js";
+import { renderOperationalView } from "./data-views.js";
 
 let safeLinkAccessAllowed = false;
 let authenticatedUserId = null;
@@ -91,6 +92,14 @@ if (safeLinkAccessAllowed) {
 
     if (view === "dashboard") {
       await renderDashboard(content);
+      sidebar.classList.remove("open");
+      menuToggle.setAttribute("aria-expanded", "false");
+      content.focus();
+      return;
+    }
+
+    if (["clientes", "pacotes", "motoristas", "expedicoes", "rotas", "relatorios", "auditoria", "administracao"].includes(view)) {
+      await renderOperationalView(view, content, authenticatedUserId);
       sidebar.classList.remove("open");
       menuToggle.setAttribute("aria-expanded", "false");
       content.focus();
