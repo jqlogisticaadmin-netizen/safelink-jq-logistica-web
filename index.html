@@ -3,82 +3,33 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#071a2e">
-  <meta name="description" content="SafeLink — gestão logística J&Q Logística.">
-  <title>SafeLink | J&Q Logística</title>
-  <link rel="stylesheet" href="assets/css/styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="assets/js/config.js" defer></script>
-  <script src="assets/js/auth.js" defer></script>
-  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
-  <script src="assets/js/importacao.js" defer></script>
-  <script src="assets/js/app.js" defer></script>
+  <meta name="theme-color" content="#f4f6f8">
+  <meta name="description" content="Documentação técnica pública do SafeLink — J&Q Logística.">
+  <title>SafeLink | Documentação técnica</title>
+  <style>
+    :root{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:#1c2733;background:#f4f6f8}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px}
+    main{width:min(760px,100%);background:#fff;border:1px solid #dce2e8;border-radius:18px;padding:clamp(24px,5vw,48px);box-shadow:0 12px 40px rgba(23,43,62,.06)}
+    .brand{display:flex;align-items:center;gap:12px;margin-bottom:32px}.mark{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:#123957;color:#fff;font-size:23px;font-weight:800}
+    .brand strong{display:block;font-size:22px}.brand small{color:#647383}
+    .eyebrow{color:#23648c;font-size:11px;font-weight:800;letter-spacing:.13em}h1{font-size:clamp(28px,5vw,40px);line-height:1.15;margin:10px 0 16px}
+    p{line-height:1.65;color:#526170}.notice{background:#f1f5f8;border-left:4px solid #23648c;padding:16px 18px;margin:24px 0;border-radius:8px}
+    .notice strong{color:#18354b}.links{display:grid;gap:10px;margin-top:24px}.links a{display:block;padding:13px 15px;border:1px solid #dce2e8;border-radius:9px;color:#164d73;text-decoration:none;font-weight:650}.links a:hover{background:#f7fafc}
+    footer{margin-top:32px;padding-top:18px;border-top:1px solid #e5e9ed;color:#788592;font-size:12px}
+  </style>
 </head>
 <body>
-  <section class="auth-screen" id="authScreen" aria-labelledby="authTitle">
-    <form class="auth-card" id="loginForm">
-      <div class="auth-brand"><span class="brand-mark">S</span><div><strong>SafeLink</strong><small>J&Q Logística</small></div></div>
-      <p class="eyebrow">ACESSO SEGURO</p><h1 id="authTitle">Entrar no SafeLink</h1>
-      <p class="page-description">Use seu e-mail e senha cadastrados para acessar o ambiente autorizado.</p>
-      <label for="loginEmail">E-mail</label><input id="loginEmail" name="email" type="email" autocomplete="username" required maxlength="254">
-      <label for="loginPassword">Senha</label><input id="loginPassword" name="password" type="password" autocomplete="current-password" required minlength="1">
-      <button class="auth-submit" id="loginSubmit" type="submit">Entrar</button>
-      <p class="auth-message" id="authMessage" role="status" aria-live="polite"></p>
-      <small class="auth-footnote">A criação de contas é restrita ao fluxo administrativo autorizado.</small>
-    </form>
-  </section>
-  <div class="app-shell" id="appShell" hidden>
-    <aside class="sidebar" id="sidebar">
-      <a class="brand" href="#dashboard" aria-label="SafeLink início">
-        <span class="brand-mark">S</span>
-        <span><strong>Safe<span>Link</span></strong><small>J&Q Logística</small></span>
-      </a>
-      <div class="workspace-label">ÁREA DE TRABALHO</div>
-      <nav class="main-nav" aria-label="Navegação principal">
-        <a class="nav-link active" href="#dashboard" data-view="dashboard"><span>▦</span> Dashboard</a>
-        <a class="nav-link" href="#bases" data-view="bases"><span>⌂</span> Bases</a>
-        <a class="nav-link" href="#usuarios" data-view="usuarios"><span>♙</span> Usuários e acessos</a>
-        <a class="nav-link" href="#clientes" data-view="clientes"><span>▤</span> Clientes</a>
-        <div class="nav-section">OPERAÇÃO LOGÍSTICA</div>
-        <a class="nav-link" href="#importacao" data-view="importacao"><span>⇧</span> Importação</a>
-        <a class="nav-link" href="#pacotes" data-view="pacotes"><span>▣</span> Pacotes</a>
-        <a class="nav-link" href="#motoristas" data-view="motoristas"><span>♧</span> Motoristas</a>
-        <a class="nav-link" href="#expedicoes" data-view="expedicoes"><span>⇢</span> Expedições</a>
-        <a class="nav-link" href="#rotas" data-view="rotas"><span>⌖</span> Rotas e entregas</a>
-        <div class="nav-section">CONTROLE</div>
-        <a class="nav-link" href="#relatorios" data-view="relatorios"><span>▥</span> Indicadores e relatórios</a>
-        <a class="nav-link" href="#auditoria" data-view="auditoria"><span>◷</span> Auditoria e histórico</a>
-        <a class="nav-link" href="#administracao" data-view="administracao"><span>⚙</span> Administração</a>
-      </nav>
-      <div class="sidebar-footer"><span class="status-dot"></span> Supabase <small id="sidebarConnectionStatus">Verificando conexão…</small></div>
-    </aside>
-
-    <main class="main-area">
-      <header class="topbar">
-        <button class="icon-button menu-toggle" id="menuToggle" aria-label="Abrir menu" aria-expanded="false">☰</button>
-        <div class="breadcrumbs"><span>SafeLink</span><span class="crumb-separator">/</span><strong id="breadcrumbCurrent">Dashboard</strong></div>
-        <div class="topbar-right"><span class="environment-tag">AMBIENTE PROTEGIDO</span><span class="session-user" id="sessionUser"></span><button class="signout-button" id="signOutButton" type="button">Sair</button><div class="avatar" aria-hidden="true">SL</div></div>
-      </header>
-      <section class="content" id="appContent" tabindex="-1">
-        <div class="page-heading">
-          <div><p class="eyebrow">VISÃO GERAL</p><h1>Dashboard</h1><p class="page-description">Acompanhe a operação logística em um só lugar.</p></div>
-          <span class="date-chip" id="dashboardConnectionStatus">Verificando conexão com Supabase…</span>
-        </div>
-        <div class="notice" role="status" id="dashboardNotice"><span class="notice-icon">i</span><div><strong>Conexão com Supabase</strong><p id="dashboardNoticeText">Validando sessão e consultando os dados que seu perfil está autorizado a visualizar.</p></div></div>
-        <div class="section-heading"><div><h2>Resumo do ambiente</h2><p>Contagens reais do banco, limitadas pelas permissões do usuário autenticado. Indicadores de entrega serão habilitados quando as tabelas operacionais forem implementadas.</p></div></div>
-        <div class="metrics-grid">
-          <article class="metric-card"><div class="metric-top"><span>Organizações</span><span class="metric-icon blue">▣</span></div><strong class="metric-value" id="metricOrganizations">—</strong><p id="metricOrganizationsNote">Consultando banco…</p></article>
-          <article class="metric-card"><div class="metric-top"><span>Bases</span><span class="metric-icon cyan">⌂</span></div><strong class="metric-value" id="metricBases">—</strong><p id="metricBasesNote">Consultando banco…</p></article>
-          <article class="metric-card"><div class="metric-top"><span>Importações</span><span class="metric-icon violet">⇧</span></div><strong class="metric-value" id="metricImports">—</strong><p id="metricImportsNote">Consultando banco…</p></article>
-          <article class="metric-card"><div class="metric-top"><span>Usuários com perfil</span><span class="metric-icon amber">♙</span></div><strong class="metric-value" id="metricUsers">—</strong><p id="metricUsersNote">Consultando banco…</p></article>
-        </div>
-        <div class="content-grid">
-          <article class="panel"><div class="panel-heading"><div><h2>Atividade administrativa</h2><p>Eventos registrados no banco e visíveis para seu perfil.</p></div><span class="panel-label" id="activityStatus">CONSULTANDO</span></div><div class="empty-state" id="activityEmpty"><div class="empty-icon">▤</div><strong>Consultando eventos…</strong><p>O resultado respeitará as permissões configuradas no Supabase.</p></div></article>
-          <article class="panel"><div class="panel-heading"><div><h2>Integridade do ambiente</h2><p>Preparação técnica</p></div></div><ul class="check-list"><li><span class="check pending">○</span><span><strong>Banco de dados</strong><small>Projeto Supabase configurado; conexão em verificação</small></span></li><li><span class="check pending">○</span><span><strong>Autenticação</strong><small>Autenticação Supabase integrada</small></span></li><li><span class="check pending">○</span><span><strong>Permissões e RLS</strong><small>Políticas existentes; revisão e testes continuam necessários</small></span></li><li><span class="check pending">○</span><span><strong>Importação de planilhas</strong><small>Estrutura inicial existe; fluxo de importação ainda pendente</small></span></li></ul></article>
-        </div>
-        <footer class="page-footer"><span>SafeLink · J&Q Logística</span><span>Conectando a operação de ponta a ponta.</span></footer>
-      </section>
-    </main>
-  </div>
+  <main>
+    <div class="brand"><span class="mark">S</span><div><strong>SafeLink</strong><small>J&Q Logística · Conectando a operação de ponta a ponta.</small></div></div>
+    <p class="eyebrow">DOCUMENTAÇÃO TÉCNICA</p>
+    <h1>SafeLink está em desenvolvimento</h1>
+    <p>Esta página pública é destinada apenas à documentação e ao acompanhamento técnico do projeto. Ela não é o ambiente comercial de operação logística.</p>
+    <div class="notice"><strong>Ambiente de produção não confirmado.</strong><p>Não informe senhas nem dados operacionais nesta página. O endereço oficial do aplicativo será disponibilizado após a configuração e a validação da hospedagem aprovada no Cloudflare Pages.</p></div>
+    <section class="links" aria-label="Recursos públicos">
+      <a href="https://github.com/jqlogisticaadmin-netizen/safelink-jq-logistica-web">Repositório público de documentação estática</a>
+      <a href="https://github.com/jqlogisticaadmin-netizen/safelink-jq-logistica-web/actions">Histórico de validação e publicação</a>
+    </section>
+    <footer>SafeLink · J&Q Logística · Infraestrutura planejada sem custo adicional.</footer>
+  </main>
 </body>
 </html>
