@@ -1,4 +1,5 @@
 import { supabase } from "./supabase-client.js";
+import { parseDateOnly } from "./operational-calculations.js";
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({
@@ -47,11 +48,36 @@ export async function renderDashboard(content) {
     const failed = [packagesResult, routesResult, expeditionsResult, slaResult, eventsResult, organizationsResult, basesResult].find((result) => result.error);
     if (failed) throw failed.error;
 
+    const packageRows = [];
+    const pageSize = 1000;
+    for (let offset = 0; offset < (packagesResult.count ?? 0); offset += pageSize) {
+      const { data: page, error: pageError } = await supabase.from("packages")
+        .select("id,label,source_created_at,source_last_read_at,last_status_source,sla_reference_date,normalized_data")
+        .order("id").range(offset, offset + pageSize - 1);
+      if (pageError) throw pageError;
+      packageRows.push(...(page || []));
+      if (!page || page.length < pageSize) break;
+    }
+    const validD0Rows = packageRows.filter((item) =>
+      parseDateOnly(item.sla_reference_date) && parseDateOnly(item.source_last_read_at)
+    );
+    const d0Count = validD0Rows.filter((item) =>
+      parseDateOnly(item.sla_reference_date) === parseDateOnly(item.source_last_read_at)
+    ).length;
+    const d0Percent = validD0Rows.length
+      ? (d0Count * 100 / validD0Rows.length).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%"
+      : "—";
+    const statusCounts = new Map();
+    packageRows.forEach((item) => {
+      const status = String(item.last_status_source || "").trim() || "Status não informado";
+      statusCounts.set(status, (statusCounts.get(status) || 0) + 1);
+    });
+    const statusRows = Array.from(statusCounts.entries()).sort((a, b) => b[1] - a[1]).slice(0, 10);
     const metrics = [
-      { label: "Pacotes visíveis", value: packagesResult.count ?? 0, note: "Registros autorizados pela política RLS" },
-      { label: "Rotas cadastradas", value: routesResult.count ?? 0, note: "Total de rotas visíveis à sua conta" },
-      { label: "Expedições cadastradas", value: expeditionsResult.count ?? 0, note: "Total de expedições visíveis à sua conta" },
-      { label: "Pacotes com data SLA", value: slaResult.count ?? 0, note: "Data de referência preenchida; não representa o percentual de SLA" }
+      { label: "Pacotes visíveis", value: Number(packagesResult.count ?? 0).toLocaleString("pt-BR"), note: "Registros autorizados pela política RLS" },
+      { label: "Rotas cadastradas", value: Number(routesResult.count ?? 0).toLocaleString("pt-BR"), note: "Total de rotas visíveis à sua conta" },
+      { label: "Expedições cadastradas", value: Number(expeditionsResult.count ?? 0).toLocaleString("pt-BR"), note: "Total de expedições visíveis à sua conta" },
+      { label: "SLA D+0 (data)", value: d0Percent, note: d0Count.toLocaleString("pt-BR") + " de " + validD0Rows.length.toLocaleString("pt-BR") + " pacotes com datas válidas; horas ignoradas" }
     ];
     const events = eventsResult.data || [];
     content.innerHTML = `
@@ -60,7 +86,7 @@ export async function renderDashboard(content) {
       <button type="button" class="admin-secondary" id="refreshDashboard">Atualizar dados</button></div>
       <div class="metrics-grid">${metrics.map((metric) => `
         <article class="metric-card"><div class="metric-top"><span>${escapeHtml(metric.label)}</span></div>
-        <strong class="metric-value">${Number(metric.value).toLocaleString("pt-BR")}</strong><p>${escapeHtml(metric.note)}</p></article>`).join("")}</div>
+        <strong class="metric-value">${escapeHtml(metric.value)}</strong><p>${escapeHtml(metric.note)}</p></article>`).join("")}</div>
       <div class="content-grid">
         <article class="panel"><div class="panel-heading"><div><h2>Atividade operacional recente</h2>
         <p>Eventos mais recentes que sua conta tem autorização para consultar.</p></div><span class="panel-label">${events.length ? "DADOS REAIS" : "SEM EVENTOS"}</span></div>
@@ -71,7 +97,9 @@ export async function renderDashboard(content) {
         <ul class="check-list"><li><span class="check">${(organizationsResult.count ?? 0) > 0 ? "✓" : "○"}</span><span><strong>Organizações</strong><small>${Number(organizationsResult.count ?? 0).toLocaleString("pt-BR")} registro(s) visível(is)</small></span></li>
         <li><span class="check">${(basesResult.count ?? 0) > 0 ? "✓" : "○"}</span><span><strong>Bases logísticas</strong><small>${Number(basesResult.count ?? 0).toLocaleString("pt-BR")} registro(s) visível(is)</small></span></li>
         <li><span class="check">${(packagesResult.count ?? 0) > 0 ? "✓" : "○"}</span><span><strong>Pacotes</strong><small>${Number(packagesResult.count ?? 0).toLocaleString("pt-BR")} registro(s) visível(is)</small></span></li></ul>
-        <p class="admin-help">O percentual de SLA, metas e gaps não é inferido sem validar as fórmulas operacionais e os dados de origem.</p></article>
+        <div class="panel-heading" style="margin-top:18px"><div><h2>Distribuição por status de origem</h2><p>Valores agrupados exatamente como vieram da coluna mapeada para status.</p></div></div>
+        ${statusRows.length ? '<div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Status</th><th>Pacotes</th></tr></thead><tbody>' + statusRows.map(([status, count]) => '<tr><td>' + escapeHtml(status) + '</td><td>' + Number(count).toLocaleString("pt-BR") + '</td></tr>').join("") + '</tbody></table></div>' : '<p class="admin-help">Ainda não há status de pacotes para agrupar.</p>'}
+        <p class="admin-help">D+0 compara somente a data normalizada de SLA com a data da última leitura; horas são ignoradas. Indicadores de metas, gap e recebimento dentro da abrangência dependem das regras operacionais restantes.</p></article>
       </div>
       <footer class="page-footer"><span>SafeLink · J&Q Logística</span><span>Consulta direta ao Supabase com RLS.</span></footer>`;
     document.getElementById("refreshDashboard")?.addEventListener("click", () => renderDashboard(content));
