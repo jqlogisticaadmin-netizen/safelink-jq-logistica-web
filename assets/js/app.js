@@ -170,7 +170,10 @@
     menuToggle.setAttribute("aria-expanded", String(open));
   });
 
-  window.addEventListener("safelink:session-ready", refreshDashboard);
+  window.addEventListener("safelink:session-ready", () => {
+    if (window.location.hash.slice(1) === "importacao") renderView("importacao");
+    else refreshDashboard();
+  });
   window.addEventListener("hashchange", () => {
     const view = window.location.hash.slice(1);
     if (titles[view]) renderView(view);
