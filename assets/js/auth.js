@@ -63,6 +63,8 @@
     client = window.supabase.createClient(cfg.url, cfg.publishableKey, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     });
+    // Share the authenticated client with application modules; never expose privileged keys.
+    window.SAFELINK_CLIENT = client;
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       submit.disabled = true;
