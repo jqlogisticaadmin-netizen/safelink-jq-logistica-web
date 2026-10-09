@@ -48,7 +48,7 @@
         <a class="nav-link" href="#auditoria" data-view="auditoria"><span>◷</span> Auditoria e histórico</a>
         <a class="nav-link" href="#administracao" data-view="administracao"><span>⚙</span> Administração</a>
       </nav>
-      <div class="sidebar-footer"><span class="status-dot"></span> Ambiente inicial <small>Sem conexão com dados</small></div>
+      <div class="sidebar-footer"><span class="status-dot"></span> Supabase <small id="sidebarConnectionStatus">Verificando conexão…</small></div>
     </aside>
 
     <main class="main-area">
@@ -60,19 +60,19 @@
       <section class="content" id="appContent" tabindex="-1">
         <div class="page-heading">
           <div><p class="eyebrow">VISÃO GERAL</p><h1>Dashboard</h1><p class="page-description">Acompanhe a operação logística em um só lugar.</p></div>
-          <span class="date-chip">Dados reais serão conectados após a configuração do backend</span>
+          <span class="date-chip" id="dashboardConnectionStatus">Verificando conexão com Supabase…</span>
         </div>
-        <div class="notice" role="status"><span class="notice-icon">i</span><div><strong>Ambiente inicial de desenvolvimento</strong><p>Esta interface é a fundação visual do SafeLink. Ainda não está conectada ao Supabase e não apresenta indicadores operacionais reais.</p></div></div>
-        <div class="section-heading"><div><h2>Indicadores operacionais</h2><p>Os cartões serão preenchidos após validar as fontes e fórmulas de cada indicador.</p></div></div>
+        <div class="notice" role="status" id="dashboardNotice"><span class="notice-icon">i</span><div><strong>Conexão com Supabase</strong><p id="dashboardNoticeText">Validando sessão e consultando os dados que seu perfil está autorizado a visualizar.</p></div></div>
+        <div class="section-heading"><div><h2>Resumo do ambiente</h2><p>Contagens reais do banco, limitadas pelas permissões do usuário autenticado. Indicadores de entrega serão habilitados quando as tabelas operacionais forem implementadas.</p></div></div>
         <div class="metrics-grid">
-          <article class="metric-card"><div class="metric-top"><span>Pacotes</span><span class="metric-icon blue">▣</span></div><strong class="metric-value">—</strong><p>Aguardando integração de dados</p></article>
-          <article class="metric-card"><div class="metric-top"><span>SLA</span><span class="metric-icon cyan">◷</span></div><strong class="metric-value">—</strong><p>Fórmula operacional a validar</p></article>
-          <article class="metric-card"><div class="metric-top"><span>Em rota</span><span class="metric-icon violet">⌖</span></div><strong class="metric-value">—</strong><p>Aguardando integração de dados</p></article>
-          <article class="metric-card"><div class="metric-top"><span>Backlog</span><span class="metric-icon amber">▤</span></div><strong class="metric-value">—</strong><p>Faixas e regras a configurar</p></article>
+          <article class="metric-card"><div class="metric-top"><span>Organizações</span><span class="metric-icon blue">▣</span></div><strong class="metric-value" id="metricOrganizations">—</strong><p id="metricOrganizationsNote">Consultando banco…</p></article>
+          <article class="metric-card"><div class="metric-top"><span>Bases</span><span class="metric-icon cyan">⌂</span></div><strong class="metric-value" id="metricBases">—</strong><p id="metricBasesNote">Consultando banco…</p></article>
+          <article class="metric-card"><div class="metric-top"><span>Importações</span><span class="metric-icon violet">⇧</span></div><strong class="metric-value" id="metricImports">—</strong><p id="metricImportsNote">Consultando banco…</p></article>
+          <article class="metric-card"><div class="metric-top"><span>Usuários com perfil</span><span class="metric-icon amber">♙</span></div><strong class="metric-value" id="metricUsers">—</strong><p id="metricUsersNote">Consultando banco…</p></article>
         </div>
         <div class="content-grid">
-          <article class="panel"><div class="panel-heading"><div><h2>Atividade operacional</h2><p>Movimentações recentes aparecerão aqui.</p></div><span class="panel-label">SEM DADOS</span></div><div class="empty-state"><div class="empty-icon">▤</div><strong>Nenhuma atividade conectada</strong><p>Após a integração, esta área exibirá eventos operacionais autorizados.</p></div></article>
-          <article class="panel"><div class="panel-heading"><div><h2>Integridade do ambiente</h2><p>Preparação técnica</p></div></div><ul class="check-list"><li><span class="check pending">○</span><span><strong>Banco de dados</strong><small>Projeto Supabase a configurar</small></span></li><li><span class="check pending">○</span><span><strong>Autenticação</strong><small>Fluxo seguro ainda não conectado</small></span></li><li><span class="check pending">○</span><span><strong>Permissões e RLS</strong><small>Políticas a implementar e testar</small></span></li><li><span class="check pending">○</span><span><strong>Importação de planilhas</strong><small>Contrato e validações pendentes</small></span></li></ul></article>
+          <article class="panel"><div class="panel-heading"><div><h2>Atividade administrativa</h2><p>Eventos registrados no banco e visíveis para seu perfil.</p></div><span class="panel-label" id="activityStatus">CONSULTANDO</span></div><div class="empty-state" id="activityEmpty"><div class="empty-icon">▤</div><strong>Consultando eventos…</strong><p>O resultado respeitará as permissões configuradas no Supabase.</p></div></article>
+          <article class="panel"><div class="panel-heading"><div><h2>Integridade do ambiente</h2><p>Preparação técnica</p></div></div><ul class="check-list"><li><span class="check pending">○</span><span><strong>Banco de dados</strong><small>Projeto Supabase configurado; conexão em verificação</small></span></li><li><span class="check pending">○</span><span><strong>Autenticação</strong><small>Autenticação Supabase integrada</small></span></li><li><span class="check pending">○</span><span><strong>Permissões e RLS</strong><small>Políticas existentes; revisão e testes continuam necessários</small></span></li><li><span class="check pending">○</span><span><strong>Importação de planilhas</strong><small>Estrutura inicial existe; fluxo de importação ainda pendente</small></span></li></ul></article>
         </div>
         <footer class="page-footer"><span>SafeLink · J&Q Logística</span><span>Conectando a operação de ponta a ponta.</span></footer>
       </section>
