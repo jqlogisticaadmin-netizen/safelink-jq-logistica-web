@@ -82,7 +82,7 @@ if (safeLinkAccessAllowed) {
       return;
     }
 
-    if (["organizacoes", "bases", "usuarios", "auditoria"].includes(view)) {
+    if (["organizacoes", "bases", "usuarios"].includes(view)) {
       await renderAdminView(view, content, authenticatedUserId);
       sidebar.classList.remove("open");
       menuToggle.setAttribute("aria-expanded", "false");
