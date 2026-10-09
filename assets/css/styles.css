@@ -22,3 +22,30 @@
 .session-user { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
 .signout-button { padding: 7px 11px; border: 1px solid #cbd5e1; border-radius: 7px; background: transparent; color: inherit; cursor: pointer; }
 @media (max-width: 520px) { .auth-card { padding: 25px; } .session-user { display: none; } }
+
+
+/* Import module */
+.import-card{padding:22px;margin:18px 0;border:1px solid var(--line);border-radius:14px;background:var(--surface);min-width:0}
+.import-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.import-field{display:grid;gap:8px;font-size:12px;font-weight:650}
+.import-field input,.import-field select{width:100%;min-width:0;padding:11px 12px;border:1px solid #29435a;border-radius:8px;background:#091f33;color:var(--text);font:inherit}
+.import-field input:focus,.import-field select:focus{outline:2px solid #227eae;outline-offset:1px}
+.muted-note{color:var(--muted);font-size:11px;line-height:1.55}
+.import-metrics{margin:18px 0;grid-template-columns:repeat(4,minmax(0,1fr))}
+.import-metrics .metric-card{min-height:auto}
+.import-metrics .metric-value{margin-top:10px}
+.import-validation-message{padding:12px 14px;margin:12px 0;border:1px solid #29435a;border-radius:9px;background:#0a2033;color:#c5d8e8;font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+.table-scroll{max-width:100%;overflow:auto;border:1px solid var(--line);border-radius:9px}
+.import-table{width:100%;border-collapse:collapse;font-size:11px;white-space:nowrap}
+.import-table th,.import-table td{padding:10px 12px;border-bottom:1px solid #1a3449;text-align:left;max-width:280px;overflow:hidden;text-overflow:ellipsis}
+.import-table th{background:#102b40;color:#b7ccdd;font-weight:650}
+.import-table td{color:#c9d8e5}
+.import-table tr:last-child td{border-bottom:0}
+.import-row-state{display:inline-block;padding:3px 7px;border-radius:20px;font-size:10px}
+.import-row-state.good{background:#123a32;color:#8ce0c3}
+.import-row-state.bad{background:#47272b;color:#ffb1b7}
+.import-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:16px 0 8px}
+.import-action{width:auto;margin:0;padding:10px 14px}
+.import-action:disabled{opacity:.5;cursor:not-allowed}
+.import-history{min-height:45px}
+@media(max-width:760px){.import-form-grid{grid-template-columns:1fr}.import-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.import-card{padding:16px}.import-actions>*{width:100%}}
