@@ -69,6 +69,13 @@ export async function attachPersistentImport(result, rows, file) {
     if (!profileName) return showStatus("Informe o nome do perfil de importação.", "error");
 
     const headers = rows[0].map((value, index) => String(value || ("Coluna " + (index + 1))));
+    const normalizedHeaders = headers.map((header) => header.trim().toLocaleLowerCase("pt-BR"));
+    if (normalizedHeaders.some((header, index) => header && normalizedHeaders.indexOf(header) !== index)) {
+      return showStatus("Importação bloqueada: existem cabeçalhos repetidos. Corrija o arquivo ou renomeie as colunas antes de importar.", "error");
+    }
+    if (dataRows.some((row) => row.length !== rows[0].length)) {
+      return showStatus("Importação bloqueada: há linhas com quantidade de colunas diferente do cabeçalho.", "error");
+    }
     const mappings = fields.map((target) => {
       const select = result.querySelector('[data-map-field="' + target + '"]');
       if (!select || !select.value) return null;
