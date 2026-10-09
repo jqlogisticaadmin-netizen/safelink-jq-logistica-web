@@ -28,8 +28,8 @@
     if (el) el.textContent = value;
   }
 
-  async function countVisibleRows(client, table, valueId, noteId) {
-    const { count, error } = await client.from(table).select("id", { count: "exact", head: true });
+  async function countVisibleRows(client, table, valueId, noteId, countColumn = "id") {
+    const { count, error } = await client.from(table).select(countColumn, { count: "exact", head: true });
     if (error) {
       setText(valueId, "—");
       setText(noteId, "Sem acesso ou consulta indisponível");
@@ -52,7 +52,7 @@
         countVisibleRows(client, "organizations", "metricOrganizations", "metricOrganizationsNote"),
         countVisibleRows(client, "bases", "metricBases", "metricBasesNote"),
         countVisibleRows(client, "import_batches", "metricImports", "metricImportsNote"),
-        countVisibleRows(client, "user_profiles", "metricUsers", "metricUsersNote")
+        countVisibleRows(client, "user_profiles", "metricUsers", "metricUsersNote", "user_id")
       ]);
       const successes = results.filter((r) => r.ok).length;
       setText("dashboardConnectionStatus", successes === results.length
